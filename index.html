@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
 
-  <!-- Embedded CSS -->
   <style>
     * {
       box-sizing: border-box;
@@ -22,7 +21,7 @@
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       background: linear-gradient(to right, #4CAF50, #2196F3);
       transition: background 0.8s ease-in-out;
     }
@@ -52,97 +51,49 @@
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
     }
 
+    /* Container for all boxes */
     .container {
-      text-align: center;
-      flex-grow: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      gap: 20px;
       flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch; /* Makes all boxes same height */
+      gap: 20px;
+      padding: 20px;
       max-width: 1400px;
-      margin: 0 auto;
+      width: 100%;
     }
 
-    .weather-card {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 25px;
-      width: 380px;
-      min-height: 500px;
-      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      transition: transform 0.4s ease, box-shadow 0.4s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .weather-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
-    }
-
+    /* Shared styles for all boxes */
+    .weather-card,
     .info-box {
       background: rgba(255, 255, 255, 0.2);
       border-radius: 20px;
       padding: 25px;
       width: 380px;
-      min-height: 500px;
+      flex: 1;            /* expand equally */
+      min-height: 500px;  /* ensures decent height */
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.18);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
-      display: none;
+      display: flex;
       flex-direction: column;
       justify-content: flex-start;
     }
 
+    /* Hover effect */
+    .weather-card:hover,
     .info-box:hover {
       transform: scale(1.05);
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
     }
 
-    .info-box h2 {
-      color: #fff;
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-      padding-bottom: 10px;
-    }
-
-    .info-box .content {
-      color: #fff;
-      font-size: 16px;
-      line-height: 1.6;
-      text-align: left;
-    }
-
-    .suggestion-icon {
-      font-size: 50px;
-      margin: 10px 0;
-    }
-
-    .fact-item {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border-left: 4px solid #2196F3;
-    }
-
-    .fact-year {
-      font-weight: bold;
-      color: #FFD700;
-      margin-bottom: 5px;
-    }
-
+    /* Weather info styles */
     h1 {
       color: #fff;
       font-weight: 700;
       margin-bottom: 20px;
+      text-align: center;
     }
 
     #city-input {
@@ -188,12 +139,15 @@
     #weather-icon {
       width: 100px;
       height: 100px;
+      display: block;
+      margin: 10px auto;
     }
 
     #temperature {
       font-size: 32px;
       font-weight: bold;
       margin: 10px 0;
+      text-align: center;
       transition: color 0.5s;
     }
 
@@ -201,16 +155,58 @@
       font-size: 18px;
       text-transform: capitalize;
       margin-bottom: 10px;
+      text-align: center;
     }
 
     #wind-speed {
       font-size: 16px;
       color: #444;
+      text-align: center;
     }
 
     #date {
       font-size: 14px;
       color: #555;
+      text-align: center;
+    }
+
+    /* Info box content */
+    .info-box h2 {
+      color: #fff;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 10px;
+      text-align: center;
+    }
+
+    .info-box .content {
+      color: #fff;
+      font-size: 16px;
+      line-height: 1.6;
+      text-align: left;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .suggestion-icon {
+      font-size: 50px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .fact-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border-left: 4px solid #2196F3;
+    }
+
+    .fact-year {
+      font-weight: bold;
+      color: #FFD700;
+      margin-bottom: 5px;
     }
 
     @keyframes fadeIn {
@@ -219,11 +215,10 @@
     }
 
     @media (max-width: 480px) {
-      .weather-card, .info-box {
+      .weather-card,
+      .info-box {
         width: 90%;
-      }
-      .container {
-        padding: 10px;
+        min-height: 450px;
       }
     }
   </style>
@@ -233,7 +228,8 @@
   <header>🌦 Live Weather Dashboard</header>
 
   <div class="container">
-    <div class="weather-card animate_animated animate_fadeIn">
+    <!-- Weather Card -->
+    <div class="weather-card animate__animated animate__fadeIn">
       <h1>Weather App</h1>
       <input type="text" id="city-input" placeholder="Enter city name">
       <button id="city-input-btn">Get Weather</button>
@@ -248,7 +244,8 @@
       </div>
     </div>
 
-    <div class="info-box animate_animated animate_fadeIn" id="suggestions-box">
+    <!-- Temperature Suggestions -->
+    <div class="info-box animate__animated animate__fadeIn" id="suggestions-box">
       <h2>🌡️ Temperature Suggestions</h2>
       <div class="content">
         <div class="suggestion-icon" id="suggestion-icon"></div>
@@ -256,7 +253,8 @@
       </div>
     </div>
 
-    <div class="info-box animate_animated animate_fadeIn" id="facts-box">
+    <!-- City Facts -->
+    <div class="info-box animate__animated animate__fadeIn" id="facts-box">
       <h2>📍 About This City</h2>
       <div class="content" id="facts-content">
         <p style="text-align: center; color: #fff;">Loading city information...</p>
@@ -266,7 +264,6 @@
 
   <footer>🌍 Created by <strong>Ishan, Karn and Hemant</strong> | CSE - 19 ©</footer>
 
-   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://momentjs.com/downloads/moment.min.js"></script>
 
@@ -284,20 +281,15 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        if (res.ok) {
-          weatherShowFn(data);
-        } else {
-          alert('City not found. Please try again.');
-          $('#weather-info').hide();
-          $('#suggestions-box').hide();
-          $('#facts-box').hide();
+        if (res.ok) weatherShowFn(data);
+        else {
+          alert('City not found.');
+          $('#weather-info, #suggestions-box, #facts-box').hide();
         }
       } catch (error) {
         console.error('Error fetching weather data:', error);
-        alert('Unable to fetch weather data. Please check your internet connection and try again.');
-        $('#weather-info').hide();
-        $('#suggestions-box').hide();
-        $('#facts-box').hide();
+        alert('Unable to fetch weather data.');
+        $('#weather-info, #suggestions-box, #facts-box').hide();
       }
     }
 
@@ -311,6 +303,7 @@
       $('#weather-info').fadeIn();
 
       const temp = data.current.temp_c;
+
       let bg;
       if (temp < 0) bg = 'linear-gradient(to right, #0f2027, #203a43, #2c5364)';
       else if (temp < 15) bg = 'linear-gradient(to right, #56CCF2, #2F80ED)';
@@ -338,48 +331,43 @@
           <ul style="text-align: left; margin-left: 20px;">
             <li>🧥 Wear heavy winter coat and thermal layers</li>
             <li>🧤 Don't forget gloves, scarf, and warm hat</li>
-            <li>☕ Enjoy hot beverages to stay warm</li>
-            <li>🏠 Stay indoors if possible, avoid prolonged exposure</li>
-            <li>⚠️ Watch for icy conditions when walking</li>
-          </ul>
-        `;
+            <li>☕ Enjoy hot beverages</li>
+            <li>🏠 Stay indoors if possible</li>
+            <li>⚠️ Watch for icy conditions</li>
+          </ul>`;
       } else if (temp < 15) {
         icon = '🧥';
         suggestions = `
           <p><strong>Cool weather ahead!</strong></p>
           <ul style="text-align: left; margin-left: 20px;">
-            <li>👕 Layer up with a jacket or sweater</li>
-            <li>🧣 A light scarf might be comfortable</li>
-            <li>☕ Perfect weather for coffee or tea</li>
-            <li>🚶 Great for outdoor walks and activities</li>
-            <li>📚 Ideal reading weather by the window</li>
-          </ul>
-        `;
+            <li>👕 Layer up</li>
+            <li>🧣 Light scarf might be comfortable</li>
+            <li>☕ Perfect for coffee or tea</li>
+            <li>🚶 Great for walks</li>
+            <li>📚 Ideal reading weather</li>
+          </ul>`;
       } else if (temp < 30) {
         icon = '🌤️';
         suggestions = `
-          <p><strong>Pleasant weather conditions!</strong></p>
+          <p><strong>Pleasant weather!</strong></p>
           <ul style="text-align: left; margin-left: 20px;">
-            <li>👕 Light clothing should be comfortable</li>
-            <li>🚴 Perfect for outdoor activities and sports</li>
-            <li>🌳 Great time for a picnic in the park</li>
-            <li>🚶 Ideal for evening walks</li>
-            <li>☀️ Enjoy the comfortable temperature!</li>
-          </ul>
-        `;
+            <li>👕 Light clothing</li>
+            <li>🚴 Outdoor activities</li>
+            <li>🌳 Picnic in park</li>
+            <li>🚶 Evening walks</li>
+            <li>☀️ Enjoy the temperature</li>
+          </ul>`;
       } else {
         icon = '🔥';
         suggestions = `
           <p><strong>Hot weather alert!</strong></p>
           <ul style="text-align: left; margin-left: 20px;">
-            <li>🩳 Wear light, breathable clothing</li>
-            <li>💧 Stay hydrated - drink plenty of water</li>
-            <li>🧴 Apply sunscreen if going outside</li>
-            <li>🏠 Stay in air-conditioned areas when possible</li>
-            <li>⏰ Avoid outdoor activities during peak hours</li>
-            <li>🧊 Cool drinks and ice cream recommended!</li>
-          </ul>
-        `;
+            <li>🩳 Wear light clothing</li>
+            <li>💧 Stay hydrated</li>
+            <li>🧴 Use sunscreen</li>
+            <li>🏠 Stay indoors during peak hours</li>
+            <li>🧊 Cool drinks recommended</li>
+          </ul>`;
       }
 
       $('#suggestion-icon').text(icon);
@@ -397,24 +385,11 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        if (res.ok && data.extract) {
-          displayCityFacts(data, cityName, country);
-        } else {
-          $('#facts-content').html(`
-            <p style="text-align: center;">
-              Unable to find detailed information about ${cityName}.<br>
-              Try searching for a different city!
-            </p>
-          `);
-        }
+        if (res.ok && data.extract) displayCityFacts(data, cityName, country);
+        else $('#facts-content').html(`<p style="text-align:center;color:#fff;">No info found for ${cityName}.</p>`);
       } catch (error) {
         console.error('Error fetching city facts:', error);
-        $('#facts-content').html(`
-          <p style="text-align: center;">
-            Unable to load information about ${cityName}.<br>
-            Please try again later.
-          </p>
-        `);
+        $('#facts-content').html(`<p style="text-align:center;color:#fff;">Unable to load information.</p>`);
       }
 
       $('#facts-box').fadeIn();
@@ -427,44 +402,31 @@
       let factsHTML = `<p style="text-align: center; margin-bottom: 15px;"><strong>${cityName}, ${country}</strong></p>`;
       
       if (thumbnail) {
-        factsHTML += `
-          <div style="text-align: center; margin-bottom: 15px;">
-            <img src="${thumbnail}" alt="${cityName}" style="max-width: 100%; border-radius: 10px; max-height: 150px;">
-          </div>
-        `;
+        factsHTML += `<div style="text-align:center;margin-bottom:15px;">
+          <img src="${thumbnail}" alt="${cityName}" style="max-width:100%;border-radius:10px;max-height:150px;">
+        </div>`;
       }
-      
+
       const sentences = extract.split('. ').filter(s => s.length > 20);
       const displaySentences = sentences.slice(0, 4).join('. ') + (sentences.length > 4 ? '...' : '.');
       
-      factsHTML += `
-        <div class="fact-item" style="text-align: justify;">
-          ${displaySentences}
-        </div>
-      `;
-      
+      factsHTML += `<div class="fact-item" style="text-align: justify;">${displaySentences}</div>`;
+
       if (data.content_urls && data.content_urls.desktop) {
-        factsHTML += `
-          <div style="text-align: center; margin-top: 15px;">
-            <a href="${data.content_urls.desktop.page}" target="_blank" 
-               style="color: #FFD700; text-decoration: none; font-size: 14px;">
-              📖 Read more on Wikipedia →
-            </a>
-          </div>
-        `;
+        factsHTML += `<div style="text-align: center; margin-top: 15px;">
+          <a href="${data.content_urls.desktop.page}" target="_blank" style="color: #FFD700; text-decoration: none; font-size: 14px;">
+            📖 Read more on Wikipedia →
+          </a>
+        </div>`;
       }
 
       $('#facts-content').html(factsHTML);
     }
 
-     
     $('#city-input-btn').on('click', function() {
       const cityName = $('#city-input').val().trim();
-      if (cityName) {
-        weatherFn(cityName);
-      } else {
-        alert('Please enter a city name!');
-      }
+      if (cityName) weatherFn(cityName);
+      else alert('Please enter a city name!');
     });
   </script>
 </body>
