@@ -1,12 +1,12 @@
 # Weather App - Live Weather Dashboard
 
 ## Overview
-A beautiful, interactive weather application that provides real-time weather information along with temperature-based suggestions and historical facts for any location worldwide.
+A beautiful, interactive weather application that provides real-time weather information along with temperature-based suggestions and city-specific information for any location worldwide.
 
 ## Features
 - **Live Weather Data**: Real-time weather information including temperature, conditions, wind speed, and weather icons
 - **Temperature-Based Suggestions**: Smart recommendations based on current temperature (what to wear, activities to do, safety tips)
-- **Historical Facts**: Fun historical events that happened on the current date, fetched from the History Muffin Labs API
+- **City Information**: Detailed facts and information about the searched city, including photos and descriptions from Wikipedia
 - **Dynamic Background**: Background color changes based on temperature (icy, cold, pleasant, hot)
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Glassmorphism UI**: Modern, beautiful card-based interface with blur effects
@@ -16,7 +16,7 @@ A beautiful, interactive weather application that provides real-time weather inf
 - **Libraries**: jQuery, Moment.js
 - **APIs**:
   - WeatherAPI.com for weather data
-  - History Muffin Labs API for historical facts
+  - Wikipedia API for city information
 - **Server**: Python 3.11 (simple HTTP server on port 5000)
 
 ## Project Structure
@@ -43,10 +43,11 @@ Based on the current temperature, the app provides personalized suggestions:
 - **15-30°C**: Light clothing, outdoor activities, picnics
 - **Above 30°C**: Light breathable clothing, stay hydrated, avoid peak hours
 
-### Historical Facts
-- Fetches events that happened on the current date throughout history
-- Displays 3 random historical events from different years
-- Data sourced from Wikipedia via History Muffin Labs API
+### City Information
+- Fetches detailed information about the searched city from Wikipedia
+- Displays city description, photos, and interesting facts
+- Provides a direct link to the Wikipedia page for more details
+- Updates dynamically whenever a new city is searched
 
 ## APIs Used
 
@@ -55,11 +56,11 @@ Based on the current temperature, the app provides personalized suggestions:
 - **Purpose**: Real-time weather data
 - **Data**: Temperature, conditions, wind speed, weather icons
 
-### History Muffin Labs
-- **Endpoint**: `https://history.muffinlabs.com/date/{month}/{day}`
-- **Purpose**: Historical events by date
-- **Data**: Events, births, deaths from history
-- **License**: Wikipedia data (CC BY-SA 3.0)
+### Wikipedia API
+- **Endpoint**: `https://en.wikipedia.org/api/rest_v1/page/summary/{city_name}`
+- **Purpose**: City information and descriptions
+- **Data**: City summaries, images, geographic information
+- **License**: Wikipedia content (CC BY-SA 3.0)
 
 ## Development
 
@@ -75,7 +76,8 @@ python server.py
 
 ## Recent Changes (November 5, 2025)
 - Added Temperature Suggestions box with dynamic recommendations
-- Integrated Historical Facts API for daily trivia
+- Integrated Wikipedia API to display city-specific information
+- Changed fun facts from date-based to city-specific (shows info about the searched location)
 - Redesigned layout to accommodate three boxes in responsive grid
 - Enhanced UI with new card styles and animations
 - Improved mobile responsiveness

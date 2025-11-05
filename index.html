@@ -257,9 +257,9 @@
     </div>
 
     <div class="info-box animate_animated animate_fadeIn" id="facts-box">
-      <h2>📚 Fun Historical Facts</h2>
+      <h2>📍 About This City</h2>
       <div class="content" id="facts-content">
-        <p style="text-align: center; color: #fff;">Loading historical facts...</p>
+        <p style="text-align: center; color: #fff;">Loading city information...</p>
       </div>
     </div>
   </div>
@@ -325,7 +325,7 @@
       else $('#temperature').css('color', '#E53935');
 
       showTemperatureSuggestions(temp);
-      fetchHistoricalFacts();
+      fetchCityFacts(data.location.name, data.location.country);
     }
 
     function showTemperatureSuggestions(temp) {
@@ -387,43 +387,72 @@
       $('#suggestions-box').fadeIn();
     }
 
-    async function fetchHistoricalFacts() {
-      const today = moment();
-      const month = today.format('M');
-      const day = today.format('D');
+    async function fetchCityFacts(cityName, country) {
+      $('#facts-box h2').html(`📍 About ${cityName}`);
+      $('#facts-content').html('<p style="text-align: center; color: #fff;">Loading city information...</p>');
       
-      const url = `https://history.muffinlabs.com/date/${month}/${day}`;
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`;
 
       try {
         const res = await fetch(url);
         const data = await res.json();
 
-        if (res.ok && data.data && data.data.Events) {
-          displayHistoricalFacts(data.data.Events, data.date);
+        if (res.ok && data.extract) {
+          displayCityFacts(data, cityName, country);
         } else {
-          $('#facts-content').html('<p style="text-align: center;">Unable to load historical facts at this time.</p>');
+          $('#facts-content').html(`
+            <p style="text-align: center;">
+              Unable to find detailed information about ${cityName}.<br>
+              Try searching for a different city!
+            </p>
+          `);
         }
       } catch (error) {
-        console.error('Error fetching historical facts:', error);
-        $('#facts-content').html('<p style="text-align: center;">Unable to load historical facts. Please try again later.</p>');
+        console.error('Error fetching city facts:', error);
+        $('#facts-content').html(`
+          <p style="text-align: center;">
+            Unable to load information about ${cityName}.<br>
+            Please try again later.
+          </p>
+        `);
       }
 
       $('#facts-box').fadeIn();
     }
 
-    function displayHistoricalFacts(events, date) {
-      const randomEvents = events.sort(() => 0.5 - Math.random()).slice(0, 3);
+    function displayCityFacts(data, cityName, country) {
+      const extract = data.extract;
+      const thumbnail = data.thumbnail ? data.thumbnail.source : '';
       
-      let factsHTML = `<p style="text-align: center; margin-bottom: 15px;"><strong>On This Day (${date})</strong></p>`;
+      let factsHTML = `<p style="text-align: center; margin-bottom: 15px;"><strong>${cityName}, ${country}</strong></p>`;
       
-      randomEvents.forEach(event => {
+      if (thumbnail) {
         factsHTML += `
-          <div class="fact-item">
-            <div class="fact-year">${event.year}</div>
-            <div>${event.text}</div>
+          <div style="text-align: center; margin-bottom: 15px;">
+            <img src="${thumbnail}" alt="${cityName}" style="max-width: 100%; border-radius: 10px; max-height: 150px;">
           </div>
         `;
-      });
+      }
+      
+      const sentences = extract.split('. ').filter(s => s.length > 20);
+      const displaySentences = sentences.slice(0, 4).join('. ') + (sentences.length > 4 ? '...' : '.');
+      
+      factsHTML += `
+        <div class="fact-item" style="text-align: justify;">
+          ${displaySentences}
+        </div>
+      `;
+      
+      if (data.content_urls && data.content_urls.desktop) {
+        factsHTML += `
+          <div style="text-align: center; margin-top: 15px;">
+            <a href="${data.content_urls.desktop.page}" target="_blank" 
+               style="color: #FFD700; text-decoration: none; font-size: 14px;">
+              📖 Read more on Wikipedia →
+            </a>
+          </div>
+        `;
+      }
 
       $('#facts-content').html(factsHTML);
     }
