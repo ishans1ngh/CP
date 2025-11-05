@@ -70,10 +70,14 @@
       border-radius: 20px;
       padding: 25px;
       width: 380px;
+      min-height: 500px;
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.18);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .weather-card:hover {
@@ -86,12 +90,14 @@
       border-radius: 20px;
       padding: 25px;
       width: 380px;
-      min-height: 300px;
+      min-height: 500px;
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.18);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
       display: none;
+      flex-direction: column;
+      justify-content: flex-start;
     }
 
     .info-box:hover {

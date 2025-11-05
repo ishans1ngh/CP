@@ -51,7 +51,7 @@ Based on the current temperature, the app provides personalized suggestions:
 ## APIs Used
 
 ### WeatherAPI.com
-- **Endpoint**: `http://api.weatherapi.com/v1/current.json`
+- **Endpoint**: `https://api.weatherapi.com/v1/current.json`
 - **Purpose**: Real-time weather data
 - **Data**: Temperature, conditions, wind speed, weather icons
 
@@ -79,6 +79,8 @@ python server.py
 - Redesigned layout to accommodate three boxes in responsive grid
 - Enhanced UI with new card styles and animations
 - Improved mobile responsiveness
+- Made all boxes uniform size (380px × 500px minimum) for visual consistency
+- Fixed HTTPS endpoint for WeatherAPI to resolve security issues
 
 ## User Preferences
 - Default city: Pune (can be changed by entering any city name)
