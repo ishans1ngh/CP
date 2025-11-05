@@ -56,7 +56,7 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      align-items: stretch; /* Makes all boxes same height */
+      align-items: stretch;
       gap: 20px;
       padding: 20px;
       max-width: 1400px;
@@ -70,8 +70,8 @@
       border-radius: 20px;
       padding: 25px;
       width: 380px;
-      flex: 1;            /* expand equally */
-      min-height: 500px;  /* ensures decent height */
+      flex: 1;
+      min-height: 500px;
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -88,45 +88,11 @@
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
     }
 
-    /* Weather info styles */
     h1 {
       color: #fff;
       font-weight: 700;
       margin-bottom: 20px;
       text-align: center;
-    }
-
-    #city-input {
-      padding: 12px;
-      margin: 10px 0;
-      width: 75%;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    #city-input:focus {
-      outline: none;
-      box-shadow: 0 0 8px #2196F3;
-    }
-
-    #city-input-btn {
-      padding: 10px 20px;
-      margin-top: 8px;
-      background-color: #2196F3;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-    }
-
-    #city-input-btn:hover {
-      background-color: #1565C0;
-      transform: scale(1.1);
-      box-shadow: 0 0 10px #1565C0;
     }
 
     #weather-info {
@@ -170,6 +136,42 @@
       text-align: center;
     }
 
+    /* Input group for equal width input + button */
+    .input-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .input-group input,
+    .input-group button {
+      flex: 1;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      box-shadow: 0 0 8px #2196F3;
+    }
+
+    .input-group button {
+      background-color: #2196F3;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .input-group button:hover {
+      background-color: #1565C0;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #1565C0;
+    }
+
     /* Info box content */
     .info-box h2 {
       color: #fff;
@@ -203,12 +205,6 @@
       border-left: 4px solid #2196F3;
     }
 
-    .fact-year {
-      font-weight: bold;
-      color: #FFD700;
-      margin-bottom: 5px;
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -219,6 +215,13 @@
       .info-box {
         width: 90%;
         min-height: 450px;
+      }
+      .input-group {
+        flex-direction: column;
+      }
+      .input-group input,
+      .input-group button {
+        width: 100%;
       }
     }
   </style>
@@ -231,8 +234,10 @@
     <!-- Weather Card -->
     <div class="weather-card animate__animated animate__fadeIn">
       <h1>Weather App</h1>
-      <input type="text" id="city-input" placeholder="Enter city name">
-      <button id="city-input-btn">Get Weather</button>
+      <div class="input-group">
+        <input type="text" id="city-input" placeholder="Enter city name">
+        <button id="city-input-btn">Get Weather</button>
+      </div>
 
       <div id="weather-info">
         <h3 id="city-name"></h3>
@@ -282,13 +287,9 @@
         const data = await res.json();
 
         if (res.ok) weatherShowFn(data);
-        else {
-          alert('City not found.');
-          $('#weather-info, #suggestions-box, #facts-box').hide();
-        }
+        else $('#weather-info, #suggestions-box, #facts-box').hide();
       } catch (error) {
-        console.error('Error fetching weather data:', error);
-        alert('Unable to fetch weather data.');
+        console.error(error);
         $('#weather-info, #suggestions-box, #facts-box').hide();
       }
     }
@@ -328,45 +329,45 @@
         icon = '❄️';
         suggestions = `
           <p><strong>Freezing temperatures detected!</strong></p>
-          <ul style="text-align: left; margin-left: 20px;">
-            <li>🧥 Wear heavy winter coat and thermal layers</li>
-            <li>🧤 Don't forget gloves, scarf, and warm hat</li>
-            <li>☕ Enjoy hot beverages</li>
-            <li>🏠 Stay indoors if possible</li>
-            <li>⚠️ Watch for icy conditions</li>
+          <ul style="text-align:left;margin-left:20px;">
+            <li>🧥 Wear heavy coat</li>
+            <li>🧤 Gloves, scarf, hat</li>
+            <li>☕ Hot beverages</li>
+            <li>🏠 Stay indoors</li>
+            <li>⚠️ Watch for ice</li>
           </ul>`;
       } else if (temp < 15) {
         icon = '🧥';
         suggestions = `
           <p><strong>Cool weather ahead!</strong></p>
-          <ul style="text-align: left; margin-left: 20px;">
+          <ul style="text-align:left;margin-left:20px;">
             <li>👕 Layer up</li>
-            <li>🧣 Light scarf might be comfortable</li>
-            <li>☕ Perfect for coffee or tea</li>
-            <li>🚶 Great for walks</li>
-            <li>📚 Ideal reading weather</li>
+            <li>🧣 Light scarf</li>
+            <li>☕ Coffee or tea</li>
+            <li>🚶 Walks outdoors</li>
+            <li>📚 Reading weather</li>
           </ul>`;
       } else if (temp < 30) {
         icon = '🌤️';
         suggestions = `
           <p><strong>Pleasant weather!</strong></p>
-          <ul style="text-align: left; margin-left: 20px;">
+          <ul style="text-align:left;margin-left:20px;">
             <li>👕 Light clothing</li>
             <li>🚴 Outdoor activities</li>
-            <li>🌳 Picnic in park</li>
+            <li>🌳 Picnic</li>
             <li>🚶 Evening walks</li>
-            <li>☀️ Enjoy the temperature</li>
+            <li>☀️ Enjoy</li>
           </ul>`;
       } else {
         icon = '🔥';
         suggestions = `
           <p><strong>Hot weather alert!</strong></p>
-          <ul style="text-align: left; margin-left: 20px;">
-            <li>🩳 Wear light clothing</li>
+          <ul style="text-align:left;margin-left:20px;">
+            <li>🩳 Light clothing</li>
             <li>💧 Stay hydrated</li>
             <li>🧴 Use sunscreen</li>
-            <li>🏠 Stay indoors during peak hours</li>
-            <li>🧊 Cool drinks recommended</li>
+            <li>🏠 Avoid peak hours</li>
+            <li>🧊 Cool drinks</li>
           </ul>`;
       }
 
@@ -377,8 +378,8 @@
 
     async function fetchCityFacts(cityName, country) {
       $('#facts-box h2').html(`📍 About ${cityName}`);
-      $('#facts-content').html('<p style="text-align: center; color: #fff;">Loading city information...</p>');
-      
+      $('#facts-content').html('<p style="text-align:center;color:#fff;">Loading city information...</p>');
+
       const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`;
 
       try {
@@ -388,7 +389,7 @@
         if (res.ok && data.extract) displayCityFacts(data, cityName, country);
         else $('#facts-content').html(`<p style="text-align:center;color:#fff;">No info found for ${cityName}.</p>`);
       } catch (error) {
-        console.error('Error fetching city facts:', error);
+        console.error(error);
         $('#facts-content').html(`<p style="text-align:center;color:#fff;">Unable to load information.</p>`);
       }
 
@@ -398,9 +399,9 @@
     function displayCityFacts(data, cityName, country) {
       const extract = data.extract;
       const thumbnail = data.thumbnail ? data.thumbnail.source : '';
-      
-      let factsHTML = `<p style="text-align: center; margin-bottom: 15px;"><strong>${cityName}, ${country}</strong></p>`;
-      
+
+      let factsHTML = `<p style="text-align:center;margin-bottom:15px;"><strong>${cityName}, ${country}</strong></p>`;
+
       if (thumbnail) {
         factsHTML += `<div style="text-align:center;margin-bottom:15px;">
           <img src="${thumbnail}" alt="${cityName}" style="max-width:100%;border-radius:10px;max-height:150px;">
@@ -409,14 +410,13 @@
 
       const sentences = extract.split('. ').filter(s => s.length > 20);
       const displaySentences = sentences.slice(0, 4).join('. ') + (sentences.length > 4 ? '...' : '.');
-      
-      factsHTML += `<div class="fact-item" style="text-align: justify;">${displaySentences}</div>`;
+
+      factsHTML += `<div class="fact-item" style="text-align:justify;">${displaySentences}</div>`;
 
       if (data.content_urls && data.content_urls.desktop) {
-        factsHTML += `<div style="text-align: center; margin-top: 15px;">
-          <a href="${data.content_urls.desktop.page}" target="_blank" style="color: #FFD700; text-decoration: none; font-size: 14px;">
-            📖 Read more on Wikipedia →
-          </a>
+        factsHTML += `<div style="text-align:center;margin-top:15px;">
+          <a href="${data.content_urls.desktop.page}" target="_blank" 
+             style="color:#FFD700;text-decoration:none;font-size:14px;">📖 Read more on Wikipedia →</a>
         </div>`;
       }
 
