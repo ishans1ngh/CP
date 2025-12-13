@@ -393,9 +393,17 @@
     const daily = {};
     data.list.forEach(item => {
       const date = moment(item.dt * 1000).format("YYYY-MM-DD");
-      const hour = moment(item.dt * 1000).hour();
-      if (!daily[date] || Math.abs(hour - 12) < Math.abs(moment(daily[date].dt * 1000).hour() - 12)) {
-        daily[date] = item;
+      const temp = item.main.temp;
+
+      if (!daily[date]) {
+        daily[date] = {
+          minTemp: temp,
+          maxTemp: temp,
+          item: item
+        };
+      } else {
+        if (temp < daily[date].minTemp) daily[date].minTemp = temp;
+        if (temp > daily[date].maxTemp) daily[date].maxTemp = temp;
       }
     });
 
@@ -406,10 +414,10 @@
       const d = daily[date];
       html += `
         <div class="forecast-day">
-          <div class="forecast-date">${moment(d.dt * 1000).format("ddd, MMM D")}</div>
-          <div><img src="https://openweathermap.org/img/wn/${d.weather[0].icon}@2x.png" width="50"></div>
-          <div class="forecast-temp">${Math.round(d.main.temp)}°C</div>
-          <div class="forecast-desc">${d.weather[0].description}</div>
+          <div class="forecast-date">${moment(d.item.dt * 1000).format("ddd, MMM D")}</div>
+          <div><img src="https://openweathermap.org/img/wn/${d.item.weather[0].icon}@2x.png" width="50"></div>
+          <div class="forecast-temp"><span style="color: #FF6B6B;">H: ${Math.round(d.maxTemp)}°</span> <span style="color: #4ECDC4;">L: ${Math.round(d.minTemp)}°</span></div>
+          <div class="forecast-desc">${d.item.weather[0].description}</div>
         </div>`;
     });
 
