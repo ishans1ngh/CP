@@ -205,6 +205,66 @@
       border-left: 4px solid #2196F3;
     }
 
+    /* Forecast specific styles */
+    #forecast-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 5px 0;
+    }
+
+    .forecast-day {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-left: 4px solid #2196F3;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .forecast-day:hover {
+      transform: translateX(5px);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .forecast-date {
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      min-width: 80px;
+    }
+
+    .forecast-icon-temp {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .forecast-icon-temp img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .forecast-temp {
+      font-size: 20px;
+      font-weight: bold;
+      color: #FFD700;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .forecast-desc {
+      font-size: 14px;
+      color: #fff;
+      text-transform: capitalize;
+      min-width: 120px;
+      text-align: right;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -222,6 +282,17 @@
       .input-group input,
       .input-group button {
         width: 100%;
+      }
+      .forecast-day {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+      .forecast-date,
+      .forecast-temp,
+      .forecast-desc {
+        min-width: auto;
+        text-align: center;
       }
     }
   </style>
@@ -265,6 +336,14 @@
         <p style="text-align: center; color: #fff;">Loading city information...</p>
       </div>
     </div>
+
+    <!-- 5-Day Forecast -->
+    <div class="info-box animate__animated animate__fadeIn" id="forecast-box">
+      <h2>📅 5-Day Weather Forecast</h2>
+      <div class="content" id="forecast-content">
+        <p style="text-align: center; color: #fff;">Loading forecast...</p>
+      </div>
+    </div>
   </div>
 
   <footer>🌍 Created by <strong>Ishan, Karn and Hemant</strong> | CSE - 19 ©</footer>
@@ -274,6 +353,7 @@
 
   <script>
     const apiKey = 'c17e9bbcc16e48228db140044250109';
+    const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
 
     $(document).ready(function () {
       weatherFn('Pune');
@@ -320,6 +400,7 @@
 
       showTemperatureSuggestions(temp);
       fetchCityFacts(data.location.name, data.location.country);
+      getFiveDayForecast(data.location.name);
     }
 
     function showTemperatureSuggestions(temp) {
@@ -421,6 +502,67 @@
       }
 
       $('#facts-content').html(factsHTML);
+    }
+
+    async function getFiveDayForecast(city) {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (res.ok) {
+          displayForecast(data);
+        } else {
+          $('#forecast-content').html('<p style="text-align:center;color:#fff;">Unable to load forecast.</p>');
+        }
+      } catch (error) {
+        console.error(error);
+        $('#forecast-content').html('<p style="text-align:center;color:#fff;">Unable to load forecast.</p>');
+      }
+
+      $('#forecast-box').fadeIn();
+    }
+
+    function displayForecast(data) {
+      const forecastList = data.list;
+      const dailyForecasts = {};
+
+      // Filter to get one forecast per day (around 12:00 PM)
+      forecastList.forEach(item => {
+        const date = moment(item.dt * 1000).format('YYYY-MM-DD');
+        const hour = moment(item.dt * 1000).hour();
+
+        // Get the forecast closest to 12:00 PM (noon)
+        if (!dailyForecasts[date] || Math.abs(hour - 12) < Math.abs(moment(dailyForecasts[date].dt * 1000).hour() - 12)) {
+          dailyForecasts[date] = item;
+        }
+      });
+
+      // Get first 5 days
+      const days = Object.keys(dailyForecasts).slice(0, 5);
+      let forecastHTML = '';
+
+      days.forEach(date => {
+        const forecast = dailyForecasts[date];
+        const dayName = moment(forecast.dt * 1000).format('ddd, MMM D');
+        const temp = Math.round(forecast.main.temp);
+        const description = forecast.weather[0].description;
+        const icon = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
+
+        forecastHTML += `
+          <div class="forecast-day">
+            <div class="forecast-date">${dayName}</div>
+            <div class="forecast-icon-temp">
+              <img src="${icon}" alt="${description}">
+              <div class="forecast-temp">${temp}°C</div>
+            </div>
+            <div class="forecast-desc">${description}</div>
+          </div>
+        `;
+      });
+
+      $('#forecast-content').html(forecastHTML);
     }
 
     $('#city-input-btn').on('click', function() {
