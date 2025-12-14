@@ -228,12 +228,13 @@
         </div>
       </div>
 
-      <!-- Temperature Suggestions -->
+      <!-- AI Weather Recommendations -->
       <div class="info-box animate__animated animate__fadeIn" id="suggestions-box">
-        <h2>🌡️ Temperature Suggestions</h2>
+        <h2>🤖 AI Weather Recommendations</h2>
         <div class="content">
-          <div class="suggestion-icon" id="suggestion-icon"></div>
-          <div id="suggestion-text"></div>
+          <div id="ai-recommendation-text" style="color: #fff; line-height: 1.8; padding: 10px;">
+            <p style="text-align: center;">Loading AI recommendations...</p>
+          </div>
         </div>
       </div>
 
@@ -275,6 +276,7 @@
 
   const apiKey = 'c17e9bbcc16e48228db140044250109';
   const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
+  const supabaseUrl = 'https://deqhaidxaxpfcffwxxkj.supabase.co';
 
   $(document).ready(function () {
     weatherFn('Pune');
@@ -319,32 +321,98 @@
     else if (temp < 30) $('#temperature').css('color', '#FF9800');
     else $('#temperature').css('color', '#E53935');
 
-    showTemperatureSuggestions(temp);
+    getAIRecommendations(data);
     fetchCityFacts(data.location.name, data.location.country);
     getFiveDayForecast(data.location.name);
   }
 
-  function showTemperatureSuggestions(temp) {
-    let icon, suggestions;
+  async function getAIRecommendations(weatherData) {
+    $('#ai-recommendation-text').html('<p style="text-align:center;">🤖 Analyzing weather data...</p>');
+
+    const requestData = {
+      city: weatherData.location.name,
+      temperature: weatherData.current.temp_c,
+      humidity: weatherData.current.humidity,
+      wind_speed: weatherData.current.wind_kph,
+      uv_index: weatherData.current.uv || 0,
+      weather_condition: weatherData.current.condition.text
+    };
+
+    try {
+      const response = await fetch(`${supabaseUrl}/functions/v1/ai-weather-recommendations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI recommendations');
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.recommendation) {
+        const formattedText = result.recommendation
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => line.length > 0)
+          .map(line => `<p>${line}</p>`)
+          .join('');
+
+        $('#ai-recommendation-text').html(formattedText);
+      } else {
+        $('#ai-recommendation-text').html('<p>Unable to generate recommendations at this time.</p>');
+      }
+    } catch (error) {
+      console.error('AI Recommendation Error:', error);
+      $('#ai-recommendation-text').html(
+        `<p><strong>Smart Recommendations:</strong></p>
+        <p>${getFallbackRecommendation(requestData)}</p>`
+      );
+    }
+  }
+
+  function getFallbackRecommendation(data) {
+    const temp = data.temperature;
+    const humidity = data.humidity || 50;
+    const windSpeed = data.wind_speed || 0;
+    const uvIndex = data.uv_index || 0;
+
+    let recommendations = [];
 
     if (temp < 0) {
-      icon = '❄️';
-      suggestions = `
-        <p><strong>Freezing temperatures detected!</strong></p>
-        <ul><li>🧥 Wear heavy coat</li></ul>`;
-    } else if (temp < 15) {
-      icon = '🧥';
-      suggestions = `<p><strong>Cool weather ahead!</strong></p>`;
+      recommendations.push('Layer up with heavy winter coat, gloves, and warm hat.');
+    } else if (temp < 10) {
+      recommendations.push('Wear a jacket and long sleeves to stay warm.');
+    } else if (temp < 20) {
+      recommendations.push('Light jacket recommended, perfect for outdoor activities.');
     } else if (temp < 30) {
-      icon = '🌤️';
-      suggestions = `<p><strong>Pleasant weather!</strong></p>`;
+      recommendations.push('Comfortable weather! Light clothing works well.');
     } else {
-      icon = '🔥';
-      suggestions = `<p><strong>Hot weather alert!</strong></p>`;
+      recommendations.push('Stay cool with light, breathable clothing.');
     }
 
-    $('#suggestion-icon').text(icon);
-    $('#suggestion-text').html(suggestions);
+    if (humidity > 80) {
+      recommendations.push('High humidity may feel uncomfortable. Stay hydrated.');
+    }
+
+    if (windSpeed > 30) {
+      recommendations.push('Strong winds expected. Secure loose items.');
+    }
+
+    if (uvIndex > 7) {
+      recommendations.push('High UV index! Apply sunscreen and wear sunglasses.');
+    } else if (uvIndex > 3) {
+      recommendations.push('Moderate UV levels. Consider sun protection.');
+    }
+
+    if (temp > 35) {
+      recommendations.push('Extreme heat! Limit outdoor exposure and stay hydrated.');
+    }
+
+    return recommendations.slice(0, 4).join(' ');
   }
 
   async function fetchCityFacts(cityName, country) {
