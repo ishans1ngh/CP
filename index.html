@@ -28,7 +28,7 @@
 
     header {
       width: 100%;
-      padding: 15px 0;
+      padding: 15px 20px;
       text-align: center;
       font-size: 1.8rem;
       color: white;
@@ -37,6 +37,47 @@
       font-weight: bold;
       letter-spacing: 1px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .hamburger-btn {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 5px;
+    }
+
+    .hamburger-btn span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      background-color: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger-btn.active span:nth-child(1) {
+      transform: rotate(45deg) translate(10px, 10px);
+    }
+
+    .hamburger-btn.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger-btn.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    @media (max-width: 768px) {
+      .hamburger-btn {
+        display: flex;
+      }
     }
 
     footer {
@@ -203,7 +244,14 @@
 </head>
 
 <body>
-  <header>🌦 Live Weather Dashboard</header>
+  <header>
+    <div style="flex: 1;">🌦 Live Weather Dashboard</div>
+    <button class="hamburger-btn" id="hamburger-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
 
   <div class="container">
 
@@ -280,6 +328,10 @@
 
   $(document).ready(function () {
     weatherFn('Pune');
+
+    $('#hamburger-menu').on('click', function () {
+      $(this).toggleClass('active');
+    });
   });
 
   async function weatherFn(city) {
