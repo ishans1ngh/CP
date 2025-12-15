@@ -229,135 +229,99 @@ function weatherShowFn(data) {
 
   const temp = data.current.temp_c;
 
-  /* 🌈 BACKGROUND COLOR CHANGE */
-  if (temp < 0) {
-    $('body').css('background', 'linear-gradient(to right, #0f2027, #203a43, #2c5364)');
-  } else if (temp < 15) {
-    $('body').css('background', 'linear-gradient(to right, #56CCF2, #2F80ED)');
-  } else if (temp < 30) {
-    $('body').css('background', 'linear-gradient(to right, #43C6AC, #191654)');
-  } else {
-    $('body').css('background', 'linear-gradient(to right, #FF512F, #DD2476)');
-  }
+  /* 🌈 Background change */
+  if (temp < 0)
+    $('body').css('background','linear-gradient(to right,#0f2027,#203a43,#2c5364)');
+  else if (temp < 15)
+    $('body').css('background','linear-gradient(to right,#56CCF2,#2F80ED)');
+  else if (temp < 30)
+    $('body').css('background','linear-gradient(to right,#43C6AC,#191654)');
+  else
+    $('body').css('background','linear-gradient(to right,#FF512F,#DD2476)');
 
-  /* CALL FEATURES */
+  /* ✅ CALL FUNCTIONS */
+  getTemperatureSuggestions(data);
+  fetchCityFacts(data.location.name, data.location.country);
+  getFiveDayForecast(data.location.name);
+}
+
+/* 💡 WEATHER SUGGESTIONS */
 function getTemperatureSuggestions(weatherData) {
   const temp = weatherData.current.temp_c;
   let suggestions = [];
 
   if (temp < 5) {
     suggestions = [
-      '❄ Wear heavy winter clothing and thermal layers.',
-      '🧤 Gloves, caps, and scarves are recommended.',
-      '☕ Drink warm beverages frequently.',
-      '🏠 Stay indoors as much as possible.',
-      '👴 Check on elderly people nearby.'
-    ];
-  } else if (temp < 10) {
-    suggestions = [
-      '🧥 Wear a warm jacket or sweater.',
-      '🧣 Carry a scarf for early mornings.',
-      '🚶 Great weather for brisk walking.',
-      '☕ Hot drinks will keep you warm.',
-      '🏡 Cozy indoor activities recommended.'
+      '❄ Wear heavy winter clothing.',
+      '🧤 Gloves and caps recommended.',
+      '☕ Drink warm beverages.',
+      '🏠 Stay indoors.',
+      '👴 Check elderly people.'
     ];
   } else if (temp < 15) {
     suggestions = [
-      '🧥 Light jacket is enough.',
-      '🚴 Ideal for outdoor activities.',
+      '🧥 Light jacket recommended.',
+      '🚶 Good for walking.',
       '👕 Layered clothing works best.',
-      '📸 Good weather for sightseeing.',
-      '☕ Enjoy mild outdoor cafes.'
-    ];
-  } else if (temp < 20) {
-    suggestions = [
-      '😊 Very comfortable weather.',
-      '🏃 Perfect for workouts and jogging.',
-      '🌳 Great for picnics and parks.',
-      '🚶 Ideal for long walks.',
-      '👕 No heavy clothing needed.'
+      '☕ Mild outdoor cafes.',
+      '📸 Nice sightseeing weather.'
     ];
   } else if (temp < 25) {
     suggestions = [
-      '👕 Wear light cotton clothes.',
-      '🧴 Apply sunscreen if outdoors.',
-      '💧 Stay hydrated.',
-      '🌅 Enjoy evening walks.',
-      '🏖 Good weather for outings.'
-    ];
-  } else if (temp < 30) {
-    suggestions = [
-      '😎 Loose and light-colored clothes recommended.',
-      '🕶 Use sunglasses and hats.',
-      '💧 Drink water regularly.',
-      '🌤 Avoid harsh afternoon sun.',
-      '🧴 Use sunscreen.'
+      '😊 Pleasant weather.',
+      '🏃 Perfect for exercise.',
+      '🌳 Picnics are great.',
+      '👕 Comfortable clothing.',
+      '🚶 Enjoy long walks.'
     ];
   } else {
     suggestions = [
-      '🔥 Extremely hot weather!',
-      '🥵 Avoid outdoor activities at noon.',
+      '🔥 Very hot weather!',
       '💧 Drink lots of water.',
-      '❄ Stay in cool or AC places.',
-      '🚨 Watch for heat exhaustion symptoms.'
+      '🕶 Use sunglasses.',
+      '❄ Stay cool indoors.',
+      '🚨 Avoid noon sun.'
     ];
   }
 
-  const html = suggestions.map(s => `<p>${s}</p>`).join('');
-  $('#ai-recommendation-text').html(html);
+  $('#ai-recommendation-text').html(
+    suggestions.map(s => `<p>${s}</p>`).join('')
+  );
 }
- 
 
+/* 📅 5-DAY FORECAST (MIN & MAX) */
 async function getFiveDayForecast(city) {
   const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`);
   const data = await res.json();
   displayForecast(data);
 }
 
-/* MIN & MAX FORECAST */
 function displayForecast(data) {
   $('#forecast-content').html('');
 
-  // Take one forecast per day (12 PM gives best daily avg)
-  const dailyForecast = data.list
+  data.list
     .filter(item => item.dt_txt.includes('12:00:00'))
-    .slice(0, 5);
-
-  dailyForecast.forEach(item => {
-    $('#forecast-content').append(`
-      <div class="forecast-day">
-        <div><strong>${moment(item.dt * 1000).format('ddd')}</strong></div>
-
-        <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
-
-        <div>
-          Min: ${Math.round(item.main.temp_min)}°C |
-          Max: ${Math.round(item.main.temp_max)}°C
+    .slice(0, 5)
+    .forEach(item => {
+      $('#forecast-content').append(`
+        <div class="forecast-day">
+          <div><strong>${moment(item.dt * 1000).format('ddd')}</strong></div>
+          <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
+          <div>Min: ${Math.round(item.main.temp_min)}°C | Max: ${Math.round(item.main.temp_max)}°C</div>
         </div>
-      </div>
-    `);
-  });
+      `);
+    });
 }
 
-
-/* SUGGESTIONS */
-function getTemperatureSuggestions(data) {
-  const t = data.current.temp_c;
-  $('#ai-recommendation-text').html(
-    t < 15 ? '<p>Carry a jacket 🧥</p>' :
-    t < 30 ? '<p>Pleasant weather 🌤</p>' :
-             '<p>Stay hydrated ☀️</p>'
-  );
-}
-
-/* ABOUT CITY */
+/* 📍 CITY INFO */
 async function fetchCityFacts(city, country) {
   const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`);
   const data = await res.json();
-  $('#facts-content').html(
-    `<p><strong>${city}, ${country}</strong></p>
-     <p>${data.extract?.split('. ').slice(0,3).join('. ')}...</p>`
-  );
+
+  $('#facts-content').html(`
+    <p><strong>${city}, ${country}</strong></p>
+    <p>${data.extract?.split('. ').slice(0,3).join('. ')}...</p>
+  `);
 }
 
 $('#city-input-btn').click(() => {
@@ -365,6 +329,7 @@ $('#city-input-btn').click(() => {
   if (city) weatherFn(city);
 });
 </script>
+
 
 </body>
 </html>
