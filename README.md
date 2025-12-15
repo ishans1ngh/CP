@@ -1,6 +1,6 @@
-# AI-Powered Weather Dashboard
+# Weather Dashboard
 
-A sophisticated weather application that uses artificial intelligence to provide personalized weather recommendations based on real-time weather data.
+A sophisticated weather application that provides personalized weather recommendations based on real-time weather data.
 
 ## Features
 
@@ -10,15 +10,15 @@ A sophisticated weather application that uses artificial intelligence to provide
 - Live weather icons and dynamic background colors based on temperature
 - Wind speed, humidity, UV index, and weather condition tracking
 
-### AI-Powered Recommendations
-The app uses advanced AI to analyze multiple weather parameters and provide personalized recommendations:
-- Temperature analysis
-- Humidity considerations
-- Wind speed warnings
-- UV index protection advice
-- Personalized clothing suggestions
-- Activity recommendations
-- Health and safety tips
+### Temperature-Based Suggestions
+The app provides 5 practical suggestions based on current temperature ranges:
+- Below 5°C: Extreme cold weather precautions and clothing
+- 5°C to 10°C: Cold weather clothing and activity suggestions
+- 10°C to 15°C: Cool weather recommendations
+- 15°C to 20°C: Comfortable weather activity ideas
+- 20°C to 25°C: Warm weather outdoor suggestions
+- 25°C to 30°C: Hot weather safety and hydration tips
+- Above 30°C: Extreme heat precautions and health warnings
 
 ### City Information
 - Automatic city facts from Wikipedia
@@ -33,40 +33,27 @@ The app uses advanced AI to analyze multiple weather parameters and provide pers
 - Animate.css for smooth animations
 - Responsive design with glassmorphism effects
 
-### Backend
-- Supabase Edge Functions powered by Deno
-- PostgreSQL database for storing recommendation history
-- AI integration using Claude API (with intelligent fallback)
-
 ### APIs Used
 - WeatherAPI for current weather data
 - OpenWeatherMap for 5-day forecasts
 - Wikipedia API for city information
-- Anthropic Claude API for AI recommendations
 
 ## How It Works
 
 1. User enters a city name or uses the default city
 2. Weather data is fetched from multiple APIs
-3. The app sends weather parameters to the AI edge function
-4. AI analyzes temperature, humidity, wind speed, and UV index
-5. Personalized recommendations are generated and displayed
-6. All recommendations are stored in the database for analysis
+3. Current temperature is analyzed
+4. 5 relevant suggestions are displayed based on the temperature range
+5. City information and 5-day forecast are shown alongside
 
 ## Setup
 
-1. The application is pre-configured with Supabase
-2. Simply open index.html in a web browser
-3. Or run the Python server: `python3 server.py`
+1. Simply open index.html in a web browser
+2. Or run the Python server: `python3 server.py`
 
-## Database Schema
+## Suggestion System
 
-The app uses a PostgreSQL database with Row Level Security enabled:
-- `weather_recommendations` table stores all AI-generated recommendations
-- Each entry includes city, weather parameters, and the AI recommendation
-- Public read access for transparency
-- Automatic timestamp tracking
-
-## AI Fallback System
-
-If the AI service is unavailable, the app automatically falls back to a rule-based recommendation system that provides intelligent suggestions based on weather thresholds.
+The app uses a simple if-else logic to provide 5 practical suggestions for each temperature range:
+- Each range covers specific clothing, activity, health, and safety recommendations
+- Suggestions are displayed instantly without any external API calls
+- All recommendations are based on common weather best practices

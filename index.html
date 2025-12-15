@@ -228,12 +228,12 @@
         </div>
       </div>
 
-      <!-- AI Weather Recommendations -->
+      <!-- Weather Suggestions -->
       <div class="info-box animate__animated animate__fadeIn" id="suggestions-box">
-        <h2>🤖 AI Weather Recommendations</h2>
+        <h2>💡 Weather Suggestions</h2>
         <div class="content">
           <div id="ai-recommendation-text" style="color: #fff; line-height: 1.8; padding: 10px;">
-            <p style="text-align: center;">Loading AI recommendations...</p>
+            <p style="text-align: center;">Loading suggestions...</p>
           </div>
         </div>
       </div>
@@ -321,98 +321,75 @@
     else if (temp < 30) $('#temperature').css('color', '#FF9800');
     else $('#temperature').css('color', '#E53935');
 
-    getAIRecommendations(data);
+    getTemperatureSuggestions(data);
     fetchCityFacts(data.location.name, data.location.country);
     getFiveDayForecast(data.location.name);
   }
 
-  async function getAIRecommendations(weatherData) {
-    $('#ai-recommendation-text').html('<p style="text-align:center;">🤖 Analyzing weather data...</p>');
+  function getTemperatureSuggestions(weatherData) {
+    const temp = weatherData.current.temp_c;
+    let suggestions = [];
 
-    const requestData = {
-      city: weatherData.location.name,
-      temperature: weatherData.current.temp_c,
-      humidity: weatherData.current.humidity,
-      wind_speed: weatherData.current.wind_kph,
-      uv_index: weatherData.current.uv || 0,
-      weather_condition: weatherData.current.condition.text
-    };
-
-    try {
-      const response = await fetch(`${supabaseUrl}/functions/v1/ai-weather-recommendations`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get AI recommendations');
-      }
-
-      const result = await response.json();
-
-      if (result.success && result.recommendation) {
-        const formattedText = result.recommendation
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
-          .map(line => `<p>${line}</p>`)
-          .join('');
-
-        $('#ai-recommendation-text').html(formattedText);
-      } else {
-        $('#ai-recommendation-text').html('<p>Unable to generate recommendations at this time.</p>');
-      }
-    } catch (error) {
-      console.error('AI Recommendation Error:', error);
-      $('#ai-recommendation-text').html(
-        `<p><strong>Smart Recommendations:</strong></p>
-        <p>${getFallbackRecommendation(requestData)}</p>`
-      );
-    }
-  }
-
-  function getFallbackRecommendation(data) {
-    const temp = data.temperature;
-    const humidity = data.humidity || 50;
-    const windSpeed = data.wind_speed || 0;
-    const uvIndex = data.uv_index || 0;
-
-    let recommendations = [];
-
-    if (temp < 0) {
-      recommendations.push('Layer up with heavy winter coat, gloves, and warm hat.');
+    if (temp < 5) {
+      suggestions = [
+        '1. Wear multiple layers including thermal underwear and a heavy winter coat.',
+        '2. Cover your head, hands, and feet with warm accessories to prevent frostbite.',
+        '3. Stay indoors as much as possible and limit outdoor exposure.',
+        '4. Drink warm beverages to maintain body temperature.',
+        '5. Check on elderly neighbors and ensure heating systems are working properly.'
+      ];
     } else if (temp < 10) {
-      recommendations.push('Wear a jacket and long sleeves to stay warm.');
+      suggestions = [
+        '1. Wear a warm jacket, sweater, and long pants for comfort.',
+        '2. Keep a scarf and gloves handy for early morning or evening outings.',
+        '3. Great weather for brisk walks or jogging with proper clothing.',
+        '4. Hot drinks like coffee or tea will help keep you warm.',
+        '5. Perfect time for indoor activities or cozy gatherings.'
+      ];
+    } else if (temp < 15) {
+      suggestions = [
+        '1. Light jacket or cardigan is recommended for outdoor activities.',
+        '2. Ideal weather for hiking, cycling, or outdoor sports.',
+        '3. Layer your clothing so you can adjust as temperatures change.',
+        '4. Comfortable temperature for sightseeing and exploring the city.',
+        '5. Great time to enjoy outdoor cafes without being too cold or hot.'
+      ];
     } else if (temp < 20) {
-      recommendations.push('Light jacket recommended, perfect for outdoor activities.');
+      suggestions = [
+        '1. Comfortable clothing with a light sweater for cooler moments.',
+        '2. Perfect weather for all outdoor activities and exercise.',
+        '3. Great day for picnics, parks, and outdoor events.',
+        '4. Ideal temperature for walking, running, or cycling.',
+        '5. No need for heavy clothing, enjoy the pleasant weather.'
+      ];
+    } else if (temp < 25) {
+      suggestions = [
+        '1. Wear light, breathable clothing like t-shirts and shorts.',
+        '2. Apply sunscreen if spending extended time outdoors.',
+        '3. Perfect weather for beach visits, swimming, or water activities.',
+        '4. Stay hydrated and carry a water bottle with you.',
+        '5. Great time for outdoor dining and evening walks.'
+      ];
     } else if (temp < 30) {
-      recommendations.push('Comfortable weather! Light clothing works well.');
+      suggestions = [
+        '1. Wear loose, light-colored clothing to stay cool.',
+        '2. Use sunglasses and a hat to protect from direct sunlight.',
+        '3. Drink plenty of water throughout the day to stay hydrated.',
+        '4. Seek shade during peak afternoon hours (12 PM - 3 PM).',
+        '5. Apply and reapply sunscreen every 2 hours if outdoors.'
+      ];
     } else {
-      recommendations.push('Stay cool with light, breathable clothing.');
+      suggestions = [
+        '1. Wear minimal, light-colored, and breathable clothing.',
+        '2. Avoid outdoor activities during peak heat hours (11 AM - 4 PM).',
+        '3. Drink water frequently even if you don\'t feel thirsty.',
+        '4. Stay in air-conditioned spaces as much as possible.',
+        '5. Watch for signs of heat exhaustion: dizziness, nausea, or excessive sweating.'
+      ];
     }
 
-    if (humidity > 80) {
-      recommendations.push('High humidity may feel uncomfortable. Stay hydrated.');
-    }
-
-    if (windSpeed > 30) {
-      recommendations.push('Strong winds expected. Secure loose items.');
-    }
-
-    if (uvIndex > 7) {
-      recommendations.push('High UV index! Apply sunscreen and wear sunglasses.');
-    } else if (uvIndex > 3) {
-      recommendations.push('Moderate UV levels. Consider sun protection.');
-    }
-
-    if (temp > 35) {
-      recommendations.push('Extreme heat! Limit outdoor exposure and stay hydrated.');
-    }
-
-    return recommendations.slice(0, 4).join(' ');
+    const html = suggestions.map(s => `<p>${s}</p>`).join('');
+    $('#ai-recommendation-text').html(html);
   }
 
   async function fetchCityFacts(cityName, country) {
