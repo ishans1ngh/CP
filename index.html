@@ -145,12 +145,49 @@ footer {
   text-align: center;
   padding: 10px;
 }
+
+  #menu-btn {
+  position: absolute;
+  left: 20px;
+  font-size: 26px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+  #side-menu {
+  position: fixed;
+  top: 0;
+  left: -220px;
+  width: 200px;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  padding: 60px 20px;
+  transition: 0.3s;
+}
+
+#side-menu a {
+  display: block;
+  color: white;
+  margin-bottom: 15px;
+  text-decoration: none;
+}
+
+
 </style>
 </head>
 
 <body>
 
 <header>
+  <button id="menu-btn">☰</button>
+  <div id="side-menu">
+  <a href="#forecast-box">Forecast</a>
+  <a href="#facts-box">City Info</a>
+  <a href="#suggestions-box">Suggestions</a>
+</div>
+
   <div class="logo">🌦 Live Weather Dashboard</div>
 </header>
 
@@ -211,6 +248,12 @@ const apiKey = 'c17e9bbcc16e48228db140044250109';
 const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
 
 $(document).ready(() => weatherFn('Pune'));
+
+$('#menu-btn').click(() => {
+  $('#side-menu').css('left',
+    $('#side-menu').css('left') === '0px' ? '-220px' : '0px'
+  );
+});
 
 async function weatherFn(city) {
   const res = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`);
