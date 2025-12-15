@@ -299,19 +299,42 @@ async function getFiveDayForecast(city) {
 function displayForecast(data) {
   $('#forecast-content').html('');
 
-  data.list
-    .filter(item => item.dt_txt.includes('12:00:00'))
-    .slice(0, 5)
-    .forEach(item => {
-      $('#forecast-content').append(`
-        <div class="forecast-day">
-          <div><strong>${moment(item.dt * 1000).format('ddd')}</strong></div>
-          <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
-          <div>Min: ${Math.round(item.main.temp_min)}°C | Max: ${Math.round(item.main.temp_max)}°C</div>
+  const dailyTemps = {};
+
+  // Group temps by date
+  data.list.forEach(item => {
+    const date = moment(item.dt * 1000).format('YYYY-MM-DD');
+
+    if (!dailyTemps[date]) {
+      dailyTemps[date] = {
+        min: item.main.temp_min,
+        max: item.main.temp_max,
+        icon: item.weather[0].icon,
+        dt: item.dt
+      };
+    } else {
+      dailyTemps[date].min = Math.min(dailyTemps[date].min, item.main.temp_min);
+      dailyTemps[date].max = Math.max(dailyTemps[date].max, item.main.temp_max);
+    }
+  });
+
+  // Take first 5 days
+  Object.keys(dailyTemps).slice(0, 5).forEach(date => {
+    const day = dailyTemps[date];
+
+    $('#forecast-content').append(`
+      <div class="forecast-day">
+        <div><strong>${moment(date).format('ddd')}</strong></div>
+        <img src="https://openweathermap.org/img/wn/${day.icon}.png">
+        <div>
+          Min: ${Math.round(day.min)}°C |
+          Max: ${Math.round(day.max)}°C
         </div>
-      `);
-    });
+      </div>
+    `);
+  });
 }
+
 
 /* 📍 CITY INFO */
 async function fetchCityFacts(city, country) {
