@@ -175,6 +175,33 @@ footer {
   text-align: center;
   padding: 10px;
 }
+
+/* SUGGESTIONS & FACTS */
+.info-box h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  border-bottom: 2px solid rgba(255,255,255,0.3);
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+#ai-recommendation-text,
+#facts-content {
+  color: #fff;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+#forecast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forecast-day img {
+  width: 40px;
+}
 </style>
 </head>
 
@@ -277,6 +304,14 @@ function weatherShowFn(data) {
   $('#weather-icon').attr('src', `https:${data.current.condition.icon}`);
   $('#weather-info').fadeIn();
 
+  const temp = data.current.temp_c;
+  if (temp < 0) $('body').css('background', 'linear-gradient(to right, #0f2027, #203a43, #2c5364)');
+  else if (temp < 15) $('body').css('background', 'linear-gradient(to right, #56CCF2, #2F80ED)');
+  else if (temp < 30) $('body').css('background', 'linear-gradient(to right, #43C6AC, #191654)');
+  else $('body').css('background', 'linear-gradient(to right, #FF512F, #DD2476)');
+
+  getTemperatureSuggestions(data);
+  fetchCityFacts(data.location.name, data.location.country);
   getFiveDayForecast(data.location.name);
 }
 
@@ -285,6 +320,96 @@ async function getFiveDayForecast(city) {
   const res = await fetch(url);
   const data = await res.json();
   displayForecast(data);
+}
+
+function getTemperatureSuggestions(weatherData) {
+  const temp = weatherData.current.temp_c;
+  let suggestions = [];
+
+  if (temp < 5) {
+    suggestions = [
+      '1. Wear multiple layers including thermal underwear and a heavy winter coat.',
+      '2. Cover your head, hands, and feet with warm accessories to prevent frostbite.',
+      '3. Stay indoors as much as possible and limit outdoor exposure.',
+      '4. Drink warm beverages to maintain body temperature.',
+      '5. Check on elderly neighbors and ensure heating systems are working properly.'
+    ];
+  } else if (temp < 10) {
+    suggestions = [
+      '1. Wear a warm jacket, sweater, and long pants for comfort.',
+      '2. Keep a scarf and gloves handy for early morning or evening outings.',
+      '3. Great weather for brisk walks or jogging with proper clothing.',
+      '4. Hot drinks like coffee or tea will help keep you warm.',
+      '5. Perfect time for indoor activities or cozy gatherings.'
+    ];
+  } else if (temp < 15) {
+    suggestions = [
+      '1. Light jacket or cardigan is recommended for outdoor activities.',
+      '2. Ideal weather for hiking, cycling, or outdoor sports.',
+      '3. Layer your clothing so you can adjust as temperatures change.',
+      '4. Comfortable temperature for sightseeing and exploring the city.',
+      '5. Great time to enjoy outdoor cafes without being too cold or hot.'
+    ];
+  } else if (temp < 20) {
+    suggestions = [
+      '1. Comfortable clothing with a light sweater for cooler moments.',
+      '2. Perfect weather for all outdoor activities and exercise.',
+      '3. Great day for picnics, parks, and outdoor events.',
+      '4. Ideal temperature for walking, running, or cycling.',
+      '5. No need for heavy clothing, enjoy the pleasant weather.'
+    ];
+  } else if (temp < 25) {
+    suggestions = [
+      '1. Wear light, breathable clothing like t-shirts and shorts.',
+      '2. Apply sunscreen if spending extended time outdoors.',
+      '3. Perfect weather for beach visits, swimming, or water activities.',
+      '4. Stay hydrated and carry a water bottle with you.',
+      '5. Great time for outdoor dining and evening walks.'
+    ];
+  } else if (temp < 30) {
+    suggestions = [
+      '1. Wear loose, light-colored clothing to stay cool.',
+      '2. Use sunglasses and a hat to protect from direct sunlight.',
+      '3. Drink plenty of water throughout the day to stay hydrated.',
+      '4. Seek shade during peak afternoon hours (12 PM - 3 PM).',
+      '5. Apply and reapply sunscreen every 2 hours if outdoors.'
+    ];
+  } else {
+    suggestions = [
+      '1. Wear minimal, light-colored, and breathable clothing.',
+      '2. Avoid outdoor activities during peak heat hours (11 AM - 4 PM).',
+      '3. Drink water frequently even if you don\'t feel thirsty.',
+      '4. Stay in air-conditioned spaces as much as possible.',
+      '5. Watch for signs of heat exhaustion: dizziness, nausea, or excessive sweating.'
+    ];
+  }
+
+  const html = suggestions.map(s => `<p>${s}</p>`).join('');
+  $('#ai-recommendation-text').html(html);
+}
+
+async function fetchCityFacts(cityName, country) {
+  $('#facts-content').html('<p style="text-align:center;">Loading city information...</p>');
+  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (res.ok && data.extract) {
+      const extract = data.extract;
+      const thumbnail = data.thumbnail ? data.thumbnail.source : '';
+
+      let html = `<p><strong>${cityName}, ${country}</strong></p>`;
+      if (thumbnail) html += `<img src="${thumbnail}" style="max-width:100%;border-radius:10px;margin:10px 0;">`;
+      html += `<p>${extract.split('. ').slice(0, 3).join('. ')}...</p>`;
+      $('#facts-content').html(html);
+    } else {
+      $('#facts-content').html(`<p>No information available.</p>`);
+    }
+  } catch {
+    $('#facts-content').html(`<p>Unable to load city information.</p>`);
+  }
 }
 
 function displayForecast(data) {
