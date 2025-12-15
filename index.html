@@ -156,7 +156,7 @@ footer {
   cursor: pointer;
 }
 
-  #side-menu {
+#side-menu {
   position: fixed;
   top: 0;
   left: -220px;
@@ -164,7 +164,12 @@ footer {
   height: 100%;
   background: rgba(0,0,0,0.9);
   padding: 60px 20px;
-  transition: 0.3s;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+#side-menu.open {
+  left: 0;
 }
 
 #side-menu a {
@@ -250,10 +255,20 @@ const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
 $(document).ready(() => weatherFn('Pune'));
 
 $('#menu-btn').click(() => {
-  $('#side-menu').css('left',
-    $('#side-menu').css('left') === '0px' ? '-220px' : '0px'
-  );
+  $('#side-menu').toggleClass('open');
 });
+$('#side-menu a').click(() => {
+  $('#side-menu').removeClass('open');
+});
+$(document).click((e) => {
+  if (
+    !$(e.target).closest('#side-menu').length &&
+    !$(e.target).is('#menu-btn')
+  ) {
+    $('#side-menu').removeClass('open');
+  }
+});
+
 
 async function weatherFn(city) {
   const res = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`);
