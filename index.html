@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weather App</title>
 
-<!-- CSS LIBRARIES -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap">
 
@@ -56,39 +55,6 @@ header {
   height: 3px;
   background: #fff;
   border-radius: 2px;
-  transition: 0.3s ease;
-}
-
-.hamburger-btn.active span:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 6px);
-}
-.hamburger-btn.active span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger-btn.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
-}
-
-/* MOBILE MENU */
-.mobile-menu {
-  position: absolute;
-  top: 65px;
-  right: 20px;
-  background: rgba(0,0,0,0.9);
-  border-radius: 14px;
-  padding: 15px;
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.mobile-menu a {
-  color: white;
-  text-decoration: none;
-}
-
-.mobile-menu.show {
-  display: flex;
 }
 
 @media (max-width: 768px) {
@@ -133,7 +99,7 @@ header {
   max-width: 1200px;
 }
 
-/* WEATHER UI */
+/* WEATHER */
 .input-group {
   display: flex;
   gap: 10px;
@@ -166,8 +132,11 @@ header {
   border-radius: 12px;
 }
 
-.forecast-day strong {
-  font-size: 16px;
+/* INFO BOX */
+.info-box h2 {
+  text-align: center;
+  border-bottom: 2px solid rgba(255,255,255,0.3);
+  padding-bottom: 10px;
 }
 
 footer {
@@ -183,20 +152,13 @@ footer {
 
 <header>
   <div class="logo">🌦 Live Weather Dashboard</div>
-
-  <button class="hamburger-btn" id="hamburger-menu">
-    <span></span><span></span><span></span>
-  </button>
-
-  <nav class="mobile-menu" id="mobile-menu">
-    <a href="#">Home</a>
-    <a href="#forecast-box">Forecast</a>
-  </nav>
 </header>
 
 <div class="container">
 
   <div class="top-row">
+
+    <!-- WEATHER -->
     <div class="weather-card">
       <h1>Weather App</h1>
       <div class="input-group">
@@ -213,8 +175,22 @@ footer {
         <p id="wind-speed"></p>
       </div>
     </div>
+
+    <!-- SUGGESTIONS -->
+    <div class="info-box" id="suggestions-box">
+      <h2>💡 Weather Suggestions</h2>
+      <div id="ai-recommendation-text"></div>
+    </div>
+
+    <!-- ABOUT CITY -->
+    <div class="info-box" id="facts-box">
+      <h2>📍 About City</h2>
+      <div id="facts-content"></div>
+    </div>
+
   </div>
 
+  <!-- FORECAST -->
   <div class="bottom-row">
     <div class="info-box" id="forecast-box">
       <h2>📅 5-Day Forecast</h2>
@@ -233,13 +209,10 @@ footer {
 const apiKey = 'c17e9bbcc16e48228db140044250109';
 const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
 
-$(document).ready(function () {
-  weatherFn('Pune');
-});
+$(document).ready(() => weatherFn('Pune'));
 
 async function weatherFn(city) {
-  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`);
   const data = await res.json();
   weatherShowFn(data);
 }
@@ -253,28 +226,24 @@ function weatherShowFn(data) {
   $('#weather-icon').attr('src', `https:${data.current.condition.icon}`);
   $('#weather-info').fadeIn();
 
+  getTemperatureSuggestions(data);
+  fetchCityFacts(data.location.name, data.location.country);
   getFiveDayForecast(data.location.name);
 }
 
 async function getFiveDayForecast(city) {
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`);
   const data = await res.json();
   displayForecast(data);
 }
 
-/* ✅ UPDATED FORECAST FUNCTION */
+/* ✅ MIN & MAX FORECAST */
 function displayForecast(data) {
   $('#forecast-content').html('');
-
-  const dailyForecast = data.list
-    .filter(item => item.dt_txt.includes('12:00:00'))
-    .slice(0, 5);
-
-  dailyForecast.forEach(item => {
+  data.list.filter(i => i.dt_txt.includes('12:00:00')).slice(0,5).forEach(item => {
     $('#forecast-content').append(`
       <div class="forecast-day">
-        <strong>${moment(item.dt * 1000).format('ddd')}</strong>
+        <strong>${moment(item.dt*1000).format('ddd')}</strong>
         <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
         <div>Min: ${Math.round(item.main.temp_min)}°C | Max: ${Math.round(item.main.temp_max)}°C</div>
       </div>
@@ -282,9 +251,26 @@ function displayForecast(data) {
   });
 }
 
+/* SUGGESTIONS */
+function getTemperatureSuggestions(data) {
+  const t = data.current.temp_c;
+  $('#ai-recommendation-text').html(
+    t < 15 ? '<p>Carry a jacket 🧥</p>' :
+    t < 30 ? '<p>Pleasant weather 🌤</p>' :
+             '<p>Stay hydrated ☀️</p>'
+  );
+}
+
+/* ABOUT CITY */
+async function fetchCityFacts(city, country) {
+  const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${city}`);
+  const data = await res.json();
+  $('#facts-content').html(`<p><strong>${city}, ${country}</strong></p><p>${data.extract?.split('. ').slice(0,3).join('. ')}...</p>`);
+}
+
 $('#city-input-btn').click(() => {
-  const city = $('#city-input').val().trim();
-  if (city) weatherFn(city);
+  const city = $('#city-input').val();
+  if(city) weatherFn(city);
 });
 </script>
 
