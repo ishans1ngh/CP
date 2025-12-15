@@ -29,41 +29,12 @@ header {
   color: white;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
+  justify-content: center;
 }
 
 .logo {
   font-size: 1.7rem;
   font-weight: 700;
-  text-align: center;
-}
-
-/* MOBILE MENU */
-.mobile-menu {
-  position: absolute;
-  top: 65px;
-  right: 20px;
-  background: rgba(0,0,0,0.9);
-  border-radius: 14px;
-  padding: 15px;
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.mobile-menu a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.mobile-menu.show {
-  display: flex;
-}
-
-@media (max-width: 768px) {
-  .hamburger-btn { display: flex; }
 }
 
 /* MAIN */
@@ -140,15 +111,7 @@ header {
   margin-bottom: 10px;
 }
 
-/* FOOTER */
-footer {
-  background: rgba(0,0,0,0.35);
-  color: white;
-  text-align: center;
-  padding: 10px;
-}
-
-/* SUGGESTIONS & FACTS */
+/* INFO BOX */
 .info-box h2 {
   color: #fff;
   font-size: 1.3rem;
@@ -174,6 +137,14 @@ footer {
 .forecast-day img {
   width: 40px;
 }
+
+/* FOOTER */
+footer {
+  background: rgba(0,0,0,0.35);
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
 </style>
 </head>
 
@@ -181,19 +152,6 @@ footer {
 
 <header>
   <div class="logo">🌦 Live Weather Dashboard</div>
-
-  <button class="hamburger-btn" id="hamburger-menu">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-
-  <nav class="mobile-menu" id="mobile-menu">
-    <a href="#">Home</a>
-    <a href="#forecast-box">Forecast</a>
-    <a href="#facts-box">City Info</a>
-    <a href="#suggestions-box">Suggestions</a>
-  </nav>
 </header>
 
 <div class="container">
@@ -232,6 +190,7 @@ footer {
 
   </div>
 
+  <!-- FORECAST -->
   <div class="bottom-row">
     <div class="info-box" id="forecast-box">
       <h2>📅 5-Day Forecast</h2>
@@ -251,18 +210,10 @@ footer {
 const apiKey = 'c17e9bbcc16e48228db140044250109';
 const openWeatherApiKey = '7c405e1d16d21803d265b7c0a044b740';
 
-$(document).ready(function () {
-  weatherFn('Pune');
-
-  $('#hamburger-menu').click(function () {
-    $(this).toggleClass('active');
-    $('#mobile-menu').toggleClass('show');
-  });
-});
+$(document).ready(() => weatherFn('Pune'));
 
 async function weatherFn(city) {
-  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`);
   const data = await res.json();
   if (res.ok) weatherShowFn(data);
 }
@@ -270,17 +221,11 @@ async function weatherFn(city) {
 function weatherShowFn(data) {
   $('#city-name').text(data.location.name);
   $('#date').text(moment().format('MMMM Do YYYY, h:mm a'));
-  $('#temperature').html(`${data.current.temp_c}°C`);
+  $('#temperature').text(`${data.current.temp_c}°C`);
   $('#description').text(data.current.condition.text);
   $('#wind-speed').text(`Wind: ${data.current.wind_kph} km/h`);
   $('#weather-icon').attr('src', `https:${data.current.condition.icon}`);
   $('#weather-info').fadeIn();
-
-  const temp = data.current.temp_c;
-  if (temp < 0) $('body').css('background', 'linear-gradient(to right, #0f2027, #203a43, #2c5364)');
-  else if (temp < 15) $('body').css('background', 'linear-gradient(to right, #56CCF2, #2F80ED)');
-  else if (temp < 30) $('body').css('background', 'linear-gradient(to right, #43C6AC, #191654)');
-  else $('body').css('background', 'linear-gradient(to right, #FF512F, #DD2476)');
 
   getTemperatureSuggestions(data);
   fetchCityFacts(data.location.name, data.location.country);
@@ -288,113 +233,46 @@ function weatherShowFn(data) {
 }
 
 async function getFiveDayForecast(city) {
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`;
-  const res = await fetch(url);
+  const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`);
   const data = await res.json();
   displayForecast(data);
 }
 
-function getTemperatureSuggestions(weatherData) {
-  const temp = weatherData.current.temp_c;
-  let suggestions = [];
-
-  if (temp < 5) {
-    suggestions = [
-      '1. Wear multiple layers including thermal underwear and a heavy winter coat.',
-      '2. Cover your head, hands, and feet with warm accessories to prevent frostbite.',
-      '3. Stay indoors as much as possible and limit outdoor exposure.',
-      '4. Drink warm beverages to maintain body temperature.',
-      '5. Check on elderly neighbors and ensure heating systems are working properly.'
-    ];
-  } else if (temp < 10) {
-    suggestions = [
-      '1. Wear a warm jacket, sweater, and long pants for comfort.',
-      '2. Keep a scarf and gloves handy for early morning or evening outings.',
-      '3. Great weather for brisk walks or jogging with proper clothing.',
-      '4. Hot drinks like coffee or tea will help keep you warm.',
-      '5. Perfect time for indoor activities or cozy gatherings.'
-    ];
-  } else if (temp < 15) {
-    suggestions = [
-      '1. Light jacket or cardigan is recommended for outdoor activities.',
-      '2. Ideal weather for hiking, cycling, or outdoor sports.',
-      '3. Layer your clothing so you can adjust as temperatures change.',
-      '4. Comfortable temperature for sightseeing and exploring the city.',
-      '5. Great time to enjoy outdoor cafes without being too cold or hot.'
-    ];
-  } else if (temp < 20) {
-    suggestions = [
-      '1. Comfortable clothing with a light sweater for cooler moments.',
-      '2. Perfect weather for all outdoor activities and exercise.',
-      '3. Great day for picnics, parks, and outdoor events.',
-      '4. Ideal temperature for walking, running, or cycling.',
-      '5. No need for heavy clothing, enjoy the pleasant weather.'
-    ];
-  } else if (temp < 25) {
-    suggestions = [
-      '1. Wear light, breathable clothing like t-shirts and shorts.',
-      '2. Apply sunscreen if spending extended time outdoors.',
-      '3. Perfect weather for beach visits, swimming, or water activities.',
-      '4. Stay hydrated and carry a water bottle with you.',
-      '5. Great time for outdoor dining and evening walks.'
-    ];
-  } else if (temp < 30) {
-    suggestions = [
-      '1. Wear loose, light-colored clothing to stay cool.',
-      '2. Use sunglasses and a hat to protect from direct sunlight.',
-      '3. Drink plenty of water throughout the day to stay hydrated.',
-      '4. Seek shade during peak afternoon hours (12 PM - 3 PM).',
-      '5. Apply and reapply sunscreen every 2 hours if outdoors.'
-    ];
-  } else {
-    suggestions = [
-      '1. Wear minimal, light-colored, and breathable clothing.',
-      '2. Avoid outdoor activities during peak heat hours (11 AM - 4 PM).',
-      '3. Drink water frequently even if you don\'t feel thirsty.',
-      '4. Stay in air-conditioned spaces as much as possible.',
-      '5. Watch for signs of heat exhaustion: dizziness, nausea, or excessive sweating.'
-    ];
-  }
-
-  const html = suggestions.map(s => `<p>${s}</p>`).join('');
-  $('#ai-recommendation-text').html(html);
-}
-
-async function fetchCityFacts(cityName, country) {
-  $('#facts-content').html('<p style="text-align:center;">Loading city information...</p>');
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`;
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (res.ok && data.extract) {
-      const extract = data.extract;
-      const thumbnail = data.thumbnail ? data.thumbnail.source : '';
-
-      let html = `<p><strong>${cityName}, ${country}</strong></p>`;
-      if (thumbnail) html += `<img src="${thumbnail}" style="max-width:100%;border-radius:10px;margin:10px 0;">`;
-      html += `<p>${extract.split('. ').slice(0, 3).join('. ')}...</p>`;
-      $('#facts-content').html(html);
-    } else {
-      $('#facts-content').html(`<p>No information available.</p>`);
-    }
-  } catch {
-    $('#facts-content').html(`<p>Unable to load city information.</p>`);
-  }
-}
-
+/* MIN & MAX FORECAST */
 function displayForecast(data) {
   $('#forecast-content').html('');
-  data.list.slice(0,5).forEach(item => {
-    $('#forecast-content').append(`
-      <div class="forecast-day">
-        <div>${moment(item.dt*1000).format('ddd')}</div>
-        <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
-        <div>${Math.round(item.main.temp)}°C</div>
-      </div>
-    `);
-  });
+  data.list
+    .filter(item => item.dt_txt.includes('12:00:00'))
+    .slice(0,5)
+    .forEach(item => {
+      $('#forecast-content').append(`
+        <div class="forecast-day">
+          <div>${moment(item.dt*1000).format('ddd')}</div>
+          <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
+          <div>Min: ${Math.round(item.main.temp_min)}°C | Max: ${Math.round(item.main.temp_max)}°C</div>
+        </div>
+      `);
+    });
+}
+
+/* SUGGESTIONS */
+function getTemperatureSuggestions(data) {
+  const t = data.current.temp_c;
+  $('#ai-recommendation-text').html(
+    t < 15 ? '<p>Carry a jacket 🧥</p>' :
+    t < 30 ? '<p>Pleasant weather 🌤</p>' :
+             '<p>Stay hydrated ☀️</p>'
+  );
+}
+
+/* ABOUT CITY */
+async function fetchCityFacts(city, country) {
+  const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`);
+  const data = await res.json();
+  $('#facts-content').html(
+    `<p><strong>${city}, ${country}</strong></p>
+     <p>${data.extract?.split('. ').slice(0,3).join('. ')}...</p>`
+  );
 }
 
 $('#city-input-btn').click(() => {
@@ -405,5 +283,3 @@ $('#city-input-btn').click(() => {
 
 </body>
 </html>
-
-how to align "live weather dashboard in cemnter ?"
