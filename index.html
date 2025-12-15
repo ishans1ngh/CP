@@ -315,14 +315,41 @@ function displayForecast(data) {
 
 /* 📍 CITY INFO */
 async function fetchCityFacts(city, country) {
-  const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`);
-  const data = await res.json();
+  $('#facts-content').html('<p>Loading city information...</p>');
 
-  $('#facts-content').html(`
-    <p><strong>${city}, ${country}</strong></p>
-    <p>${data.extract?.split('. ').slice(0,3).join('. ')}...</p>
-  `);
+  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    let html = `<p><strong>${city}, ${country}</strong></p>`;
+
+    /* 🖼 CITY IMAGE */
+    if (data.thumbnail && data.thumbnail.source) {
+      html += `
+        <img 
+          src="${data.thumbnail.source}" 
+          alt="${city}" 
+          style="width:100%;border-radius:12px;margin:10px 0;"
+        >
+      `;
+    }
+
+    /* 📄 CITY DESCRIPTION */
+    if (data.extract) {
+      html += `<p>${data.extract.split('. ').slice(0, 3).join('. ')}...</p>`;
+    } else {
+      html += `<p>No description available.</p>`;
+    }
+
+    $('#facts-content').html(html);
+
+  } catch (error) {
+    $('#facts-content').html('<p>Unable to load city information.</p>');
+  }
 }
+
 
 $('#city-input-btn').click(() => {
   const city = $('#city-input').val().trim();
