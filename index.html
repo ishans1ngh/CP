@@ -227,10 +227,86 @@ function weatherShowFn(data) {
   $('#weather-icon').attr('src', `https:${data.current.condition.icon}`);
   $('#weather-info').fadeIn();
 
-  getTemperatureSuggestions(data);
-  fetchCityFacts(data.location.name, data.location.country);
-  getFiveDayForecast(data.location.name);
+  const temp = data.current.temp_c;
+
+  /* 🌈 BACKGROUND COLOR CHANGE */
+  if (temp < 0) {
+    $('body').css('background', 'linear-gradient(to right, #0f2027, #203a43, #2c5364)');
+  } else if (temp < 15) {
+    $('body').css('background', 'linear-gradient(to right, #56CCF2, #2F80ED)');
+  } else if (temp < 30) {
+    $('body').css('background', 'linear-gradient(to right, #43C6AC, #191654)');
+  } else {
+    $('body').css('background', 'linear-gradient(to right, #FF512F, #DD2476)');
+  }
+
+  /* CALL FEATURES */
+function getTemperatureSuggestions(weatherData) {
+  const temp = weatherData.current.temp_c;
+  let suggestions = [];
+
+  if (temp < 5) {
+    suggestions = [
+      '❄ Wear heavy winter clothing and thermal layers.',
+      '🧤 Gloves, caps, and scarves are recommended.',
+      '☕ Drink warm beverages frequently.',
+      '🏠 Stay indoors as much as possible.',
+      '👴 Check on elderly people nearby.'
+    ];
+  } else if (temp < 10) {
+    suggestions = [
+      '🧥 Wear a warm jacket or sweater.',
+      '🧣 Carry a scarf for early mornings.',
+      '🚶 Great weather for brisk walking.',
+      '☕ Hot drinks will keep you warm.',
+      '🏡 Cozy indoor activities recommended.'
+    ];
+  } else if (temp < 15) {
+    suggestions = [
+      '🧥 Light jacket is enough.',
+      '🚴 Ideal for outdoor activities.',
+      '👕 Layered clothing works best.',
+      '📸 Good weather for sightseeing.',
+      '☕ Enjoy mild outdoor cafes.'
+    ];
+  } else if (temp < 20) {
+    suggestions = [
+      '😊 Very comfortable weather.',
+      '🏃 Perfect for workouts and jogging.',
+      '🌳 Great for picnics and parks.',
+      '🚶 Ideal for long walks.',
+      '👕 No heavy clothing needed.'
+    ];
+  } else if (temp < 25) {
+    suggestions = [
+      '👕 Wear light cotton clothes.',
+      '🧴 Apply sunscreen if outdoors.',
+      '💧 Stay hydrated.',
+      '🌅 Enjoy evening walks.',
+      '🏖 Good weather for outings.'
+    ];
+  } else if (temp < 30) {
+    suggestions = [
+      '😎 Loose and light-colored clothes recommended.',
+      '🕶 Use sunglasses and hats.',
+      '💧 Drink water regularly.',
+      '🌤 Avoid harsh afternoon sun.',
+      '🧴 Use sunscreen.'
+    ];
+  } else {
+    suggestions = [
+      '🔥 Extremely hot weather!',
+      '🥵 Avoid outdoor activities at noon.',
+      '💧 Drink lots of water.',
+      '❄ Stay in cool or AC places.',
+      '🚨 Watch for heat exhaustion symptoms.'
+    ];
+  }
+
+  const html = suggestions.map(s => `<p>${s}</p>`).join('');
+  $('#ai-recommendation-text').html(html);
 }
+ 
 
 async function getFiveDayForecast(city) {
   const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${openWeatherApiKey}&units=metric`);
@@ -241,19 +317,28 @@ async function getFiveDayForecast(city) {
 /* MIN & MAX FORECAST */
 function displayForecast(data) {
   $('#forecast-content').html('');
-  data.list
+
+  // Take one forecast per day (12 PM gives best daily avg)
+  const dailyForecast = data.list
     .filter(item => item.dt_txt.includes('12:00:00'))
-    .slice(0,5)
-    .forEach(item => {
-      $('#forecast-content').append(`
-        <div class="forecast-day">
-          <div>${moment(item.dt*1000).format('ddd')}</div>
-          <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
-          <div>Min: ${Math.round(item.main.temp_min)}°C | Max: ${Math.round(item.main.temp_max)}°C</div>
+    .slice(0, 5);
+
+  dailyForecast.forEach(item => {
+    $('#forecast-content').append(`
+      <div class="forecast-day">
+        <div><strong>${moment(item.dt * 1000).format('ddd')}</strong></div>
+
+        <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png">
+
+        <div>
+          Min: ${Math.round(item.main.temp_min)}°C |
+          Max: ${Math.round(item.main.temp_max)}°C
         </div>
-      `);
-    });
+      </div>
+    `);
+  });
 }
+
 
 /* SUGGESTIONS */
 function getTemperatureSuggestions(data) {
